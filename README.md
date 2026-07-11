@@ -3,6 +3,8 @@
 A mobile-first **game discovery & market-trend** demo for Vietnam and the Philippines.
 Not a casino review site — the core idea is *"see what your market is playing today."*
 
+**▶ Live demo:** https://mktcycy.github.io/sea-play-pulse/
+
 > Demo only · **all data is mock** · no real money · no sign-up · no real API.
 
 ## Stack
