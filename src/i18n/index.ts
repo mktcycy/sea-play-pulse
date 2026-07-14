@@ -245,6 +245,27 @@ const zh: Dict = {
   "misc.demoNo": "暫無試玩",
   "misc.updated": "資料更新於今日",
   "misc.disclaimerShort": "數據為模擬示範",
+  "misc.sampleData": "示意資料",
+  "action.tryOnsite": "在本站試玩",
+  "action.goOfficial": "前往官方 Demo",
+  "action.reportBroken": "回報連結失效",
+  "action.randomPlay": "隨機試玩一款",
+  "action.reset": "重置篩選",
+  "action.rematch": "換一組",
+  "action.playAgain": "再玩一次",
+  "action.move": "移動分類",
+  "action.remove": "取消收藏",
+  "action.clear": "清除紀錄",
+  "action.submit": "送出",
+  "playType.onsite": "站內試玩",
+  "playType.official": "官方 Demo",
+  "filter.onlyDemo": "僅顯示可試玩",
+  "toast.demoOpened": "已開啟官方 Demo 分頁",
+  "toast.brokenReported": "已回報連結失效，謝謝",
+  "toast.feedbackThanks": "感謝你的試玩心得！",
+  "toast.reportSent": "已收到回報，謝謝",
+  "toast.categoryMoved": "已更新收藏分類",
+  "disclaimer.noReal": "本站僅提供遊戲資訊與免費試玩，不提供儲值、投注或真實金錢獎勵。",
 };
 
 const vi: Dict = {
@@ -453,6 +474,27 @@ const vi: Dict = {
   "orient.portrait": "Dọc",
   "orient.landscape": "Ngang",
   "orient.both": "Cả hai",
+  "misc.sampleData": "Dữ liệu minh hoạ",
+  "action.tryOnsite": "Chơi thử tại trang",
+  "action.goOfficial": "Đến Demo chính thức",
+  "action.reportBroken": "Báo liên kết lỗi",
+  "action.randomPlay": "Chơi thử ngẫu nhiên",
+  "action.reset": "Đặt lại bộ lọc",
+  "action.rematch": "Đổi cặp khác",
+  "action.playAgain": "Chơi lại",
+  "action.move": "Chuyển nhóm",
+  "action.remove": "Bỏ lưu",
+  "action.clear": "Xoá nhật ký",
+  "action.submit": "Gửi",
+  "playType.onsite": "Chơi tại trang",
+  "playType.official": "Demo chính thức",
+  "filter.onlyDemo": "Chỉ hiện có chơi thử",
+  "toast.demoOpened": "Đã mở tab Demo chính thức",
+  "toast.brokenReported": "Đã báo liên kết lỗi, cảm ơn",
+  "toast.feedbackThanks": "Cảm ơn cảm nhận của bạn!",
+  "toast.reportSent": "Đã nhận báo cáo, cảm ơn",
+  "toast.categoryMoved": "Đã cập nhật nhóm lưu",
+  "disclaimer.noReal": "Trang chỉ cung cấp thông tin game và chơi thử miễn phí; không nạp tiền, không cá cược, không thưởng tiền thật.",
 };
 
 const en: Dict = {
@@ -661,6 +703,27 @@ const en: Dict = {
   "orient.portrait": "Portrait",
   "orient.landscape": "Landscape",
   "orient.both": "Both",
+  "misc.sampleData": "Sample data",
+  "action.tryOnsite": "Play on our site",
+  "action.goOfficial": "Go to official Demo",
+  "action.reportBroken": "Report broken link",
+  "action.randomPlay": "Play a random game",
+  "action.reset": "Reset filters",
+  "action.rematch": "Shuffle",
+  "action.playAgain": "Play again",
+  "action.move": "Move",
+  "action.remove": "Unsave",
+  "action.clear": "Clear history",
+  "action.submit": "Submit",
+  "playType.onsite": "On-site demo",
+  "playType.official": "Official demo",
+  "filter.onlyDemo": "Playable only",
+  "toast.demoOpened": "Opened official demo tab",
+  "toast.brokenReported": "Broken link reported, thanks",
+  "toast.feedbackThanks": "Thanks for your feedback!",
+  "toast.reportSent": "Report received, thanks",
+  "toast.categoryMoved": "Collection updated",
+  "disclaimer.noReal": "This site only offers game info and free demos — no deposits, betting, or real-money rewards.",
 };
 
 const dicts: Record<Lang, Dict> = { zh, vi, en };
@@ -669,4 +732,9 @@ export function translate(lang: Lang, key: string, vars?: Record<string, string 
   const raw = dicts[lang][key] ?? dicts.zh[key] ?? key;
   if (!vars) return raw;
   return raw.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? `{${k}}`));
+}
+
+// Inline three-language picker for one-off strings (keeps the dict lean).
+export function pick(lang: Lang, zh: string, vi: string, en: string): string {
+  return lang === "vi" ? vi : lang === "en" ? en : zh;
 }

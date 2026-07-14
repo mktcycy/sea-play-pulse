@@ -1,6 +1,86 @@
-import type { Game, MarketId } from "@/lib/types";
+import type { DemoStatus, DemoType, Game, MarketId } from "@/lib/types";
 import { seededRandom } from "@/lib/format";
 import { CATEGORY_MAP, type CategoryId } from "./categories";
+
+// Fixed "today" so newRelease / rotations are deterministic in the demo.
+const NOW = new Date("2026-07-14").getTime();
+
+const THEME_BY_TAG: Record<string, string> = {
+  animal: "animal", fortune: "fortune", adventure: "adventure",
+  egypt: "egypt", candy: "candy", sport: "sport", classic: "classic",
+};
+const PIRATE_GAMES = new Set(["deep-sea-hunter", "mega-fisher-9"]);
+// A few games carry non-ok demo status to exercise the status UI.
+const DEMO_STATUS_OVERRIDE: Record<string, DemoStatus> = {
+  "video-poker-jacks": "maintenance",
+  "live-roulette-neo": "regionLocked",
+  "mega-fisher-9": "linkBroken",
+  "texas-holdem-club": "mobileUnsupported",
+};
+
+function deriveThemes(s: Seed): string[] {
+  const t = s.tags.filter((x) => THEME_BY_TAG[x]).map((x) => THEME_BY_TAG[x]);
+  if (PIRATE_GAMES.has(s.id)) t.push("pirate");
+  if (t.length === 0) t.push(s.category === "fishing" ? "animal" : "classic");
+  return [...new Set(t)];
+}
+
+function deriveMechanics(s: Seed): string[] {
+  const m: string[] = [];
+  if (s.tags.includes("cascade")) m.push("cascading");
+  if (s.category === "fishing") m.push("shooting");
+  if (s.category === "colorGame" || s.category === "crash") m.push("clickPlay");
+  if (s.category === "slot") {
+    // deterministic slot mechanic by seed
+    const pool = ["holdWin", "megaways", "cluster", "cascading", "freeSpins"];
+    const pick = pool[Math.floor(seededRandom(s.id + "mech")() * pool.length)];
+    m.push(pick);
+  }
+  if (s.bonusRichness >= 3 && !m.includes("freeSpins")) m.push("freeSpins");
+  if (m.length === 0) m.push("clickPlay");
+  return [...new Set(m)].slice(0, 3);
+}
+
+function deriveExperience(s: Seed): string[] {
+  const e: string[] = [];
+  if (s.difficulty <= 1) { e.push("newbie"); e.push("simple"); }
+  if (s.pace >= 4) e.push("fast");
+  if (["fishing", "liveCasino", "crash"].includes(s.category)) e.push("special");
+  if (s.bonusRichness >= 4) e.push("rich");
+  if (e.length === 0) e.push("simple");
+  return [...new Set(e)].slice(0, 3);
+}
+
+function deriveOps(s: Seed): string[] {
+  switch (s.category) {
+    case "fishing": return ["tapShoot", "mobileSwipe"];
+    case "slot": return ["spaceSpin", "autoSpin", "mobileTap"];
+    case "crash": return ["tapCashout", "autoSpin"];
+    case "colorGame": return ["tapPick", "mobileTap"];
+    case "liveCasino": return ["tapBet", "mobileTap"];
+    case "poker": return ["tapAction", "mobileTap"];
+    default: return ["mobileTap"];
+  }
+}
+
+function visualStyleOf(themes: string[]): string {
+  if (themes.includes("candy") || themes.includes("animal")) return "cute";
+  if (themes.includes("fortune")) return "luxe";
+  if (themes.includes("egypt") || themes.includes("adventure") || themes.includes("pirate")) return "epic";
+  if (themes.includes("sport")) return "dynamic";
+  return "neon";
+}
+
+function highlightsOf(s: Seed, mechanics: string[], themes: string[]): string[] {
+  const h: string[] = [];
+  if (s.pace >= 4) h.push("fast");
+  if (s.bonusRichness >= 4) h.push("manyBonus");
+  if (s.difficulty <= 1) h.push("easy");
+  if (s.bigWinPotential >= 4) h.push("bigWin");
+  if (mechanics[0]) h.push(mechanics[0]);
+  if (themes[0]) h.push(themes[0]);
+  return [...new Set(h)].slice(0, 3);
+}
 
 // Curated per-game fields; the rest is derived deterministically in build().
 type Seed = {
@@ -374,18 +454,37 @@ function build(): Game[] {
       const drift = (i - 3) * (rnd() * 4 - 1.2);
       return Math.max(8, Math.round(base + wave + drift));
     });
+    const themes = deriveThemes(s);
+    const mechanics = deriveMechanics(s);
+    const experienceTags = deriveExperience(s);
+    const ageDays = (NOW - new Date(s.releaseDate).getTime()) / 86400000;
+    const demoType: DemoType = rnd() < 0.55 ? "onsite" : "official";
+    const demoStatus: DemoStatus = DEMO_STATUS_OVERRIDE[s.id] ?? "ok";
     return {
       id: s.id,
+      slug: s.id,
       name: s.name,
       provider: s.provider,
       category: s.category,
+      themes,
+      mechanics,
+      experienceTags,
       releaseDate: s.releaseDate,
       image: "", // procedural thumbnail via <GameThumb />
+      previewVideo: null, // demo: static preview via <GameThumb />
       markets: s.markets,
       languages: s.markets.includes("vn") ? ["vi", "en"] : ["en"],
       orientation: s.orientation,
+      visualStyle: visualStyleOf(themes),
       mobileFriendly: s.mobileExperience >= 3,
       demoAvailable: true,
+      demoType,
+      demoUrl: demoType === "official" ? `https://demo.example/${s.provider.toLowerCase().replace(/\s+/g, "-")}/${s.id}` : "",
+      demoStatus,
+      shortDescription: s.description.split(/[.;]/)[0].trim(),
+      quickHighlights: highlightsOf(s, mechanics, themes),
+      operationTips: deriveOps(s),
+      suitableFor: experienceTags,
       pace: s.pace,
       winFrequency: s.winFrequency,
       bigWinPotential: s.bigWinPotential,
@@ -396,6 +495,8 @@ function build(): Game[] {
       replayRate: Math.min(92, replayRate),
       demoCount24h,
       favoriteCount,
+      featured: rnd() < 0.2,
+      newRelease: ageDays <= 60,
       vietnamRank: 999,
       philippinesRank: 999,
       vietnamTrend: Math.round((rnd() * 2 - 0.7) * 14),
@@ -423,4 +524,18 @@ export function gamesInMarket(market: MarketId): Game[] {
 
 export function getGame(id: string): Game | undefined {
   return GAME_MAP[id];
+}
+
+// Today's featured game — rotates daily (demo-stable within a day).
+export function todaysPick(market: MarketId): Game {
+  const pool = gamesInMarket(market);
+  const day = Math.floor(Date.now() / 86400000);
+  return pool[day % pool.length];
+}
+
+// A random currently-playable game (for the "隨機試玩一款" button).
+export function randomPlayable(market: MarketId, excludeId?: string): Game {
+  const pool = gamesInMarket(market).filter((g) => g.demoStatus === "ok" && g.id !== excludeId);
+  const src = pool.length ? pool : gamesInMarket(market);
+  return src[Math.floor(Math.random() * src.length)];
 }

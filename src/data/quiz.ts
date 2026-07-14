@@ -39,14 +39,6 @@ export const QUESTIONS: QuizQuestion[] = [
     ],
   },
   {
-    id: "q5",
-    options: [
-      { value: "q5.a", weight: { shortSession: 5, pace: 4 } },
-      { value: "q5.b", weight: { shortSession: 3 } },
-      { value: "q5.c", weight: { shortSession: 1 } },
-    ],
-  },
-  {
     id: "q6", // preferred theme -> tag
     options: [
       { value: "candy", weight: {}, tag: "candy" },

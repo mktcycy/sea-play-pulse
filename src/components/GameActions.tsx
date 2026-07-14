@@ -1,4 +1,4 @@
-import { Heart, Play, GitCompareArrows } from "lucide-react";
+import { Heart, Play, GitCompareArrows, ExternalLink } from "lucide-react";
 import type { Game } from "@/lib/types";
 import { useSaved } from "@/context/SavedContext";
 import { useToast } from "@/context/ToastContext";
@@ -52,12 +52,34 @@ export function CompareButton({ game }: { game: Game }) {
   );
 }
 
-export function DemoButton({ game, full = false }: { game: Game; full?: boolean }) {
+// label: "free" = 免費試玩 (short, for cards); "auto" = 在本站試玩 / 前往官方 Demo by type.
+export function DemoButton({
+  game,
+  full = false,
+  label = "free",
+  size = "sm",
+}: {
+  game: Game;
+  full?: boolean;
+  label?: "free" | "auto";
+  size?: "sm" | "lg";
+}) {
   const { playDemo } = useDemo();
   const { t } = useMarket();
+  const official = game.demoType === "official";
+  const notOk = game.demoStatus !== "ok";
+  const text =
+    label === "free" ? t("action.tryFree") : official ? t("action.goOfficial") : t("action.tryOnsite");
   return (
-    <button onClick={() => playDemo(game)} className={`btn-primary h-9 ${full ? "w-full" : "flex-1"}`}>
-      <Play size={15} fill="currentColor" /> {t("action.tryFree")}
+    <button
+      onClick={() => playDemo(game)}
+      aria-label={text}
+      className={`btn-primary ${size === "lg" ? "h-12 text-base" : "h-9"} ${full ? "w-full" : "flex-1"} ${
+        notOk ? "opacity-70" : ""
+      }`}
+    >
+      {official ? <ExternalLink size={size === "lg" ? 18 : 15} /> : <Play size={size === "lg" ? 18 : 15} fill="currentColor" />}
+      {text}
     </button>
   );
 }

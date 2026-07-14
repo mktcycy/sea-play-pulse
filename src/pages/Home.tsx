@@ -10,6 +10,7 @@ import { RailCard, RankRow } from "@/components/GameCard";
 import { DuelCard } from "@/components/DuelCard";
 import { MarketTrendChart } from "@/components/MarketTrendChart";
 import { PulseLine } from "@/components/PulseLine";
+import { TodayPick, RecentPlayedRail } from "@/components/Shared";
 import { GameCardSkeleton, RowSkeleton } from "@/components/Skeleton";
 import { duelOfTheDay } from "@/data/duel";
 import { useSimulatedLoading } from "@/lib/useLoading";
@@ -61,6 +62,12 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* today's pick */}
+      <div className="mt-7"><TodayPick /></div>
+
+      {/* recently played */}
+      <RecentPlayedRail />
 
       {/* Today's market top board */}
       <Section eyebrow="SEA Play Pulse" title={t("home.todayTop")} to="/pulse">

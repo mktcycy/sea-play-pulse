@@ -9,9 +9,10 @@ import { gamesInMarket } from "@/data/games";
 import { categoryLabel } from "@/data/categories";
 import { tagLabel } from "@/data/tags";
 import { GameThumb } from "@/components/GameThumb";
-import { RankBadge, Stars } from "@/components/Bits";
+import { Stars } from "@/components/Bits";
 import { DemoButton, SaveButton } from "@/components/GameActions";
 import { rankOf } from "@/lib/format";
+import { pick } from "@/i18n";
 
 function optionLabel(value: string, t: (k: string) => string, lang: "zh" | "vi" | "en") {
   if (value.includes(".")) return t(value); // e.g. q1.a
@@ -148,36 +149,31 @@ function Result({ result, onRestart }: { result: QuizResult; onRestart: () => vo
 
       <h2 className="section-title mt-6">{t("quiz.recommend")}</h2>
       <div className="mt-3 grid gap-2.5">
-        {recs.map((g, i) => {
+        {recs.slice(0, 3).map((g, i) => {
           const matched = [
             ...(result.preferredTags.includes(g.category) ? [categoryLabel(g.category, lang)] : []),
             ...g.tags.filter((tag) => result.preferredTags.includes(tag)).map((tag) => tagLabel(tag, lang)),
           ].slice(0, 3);
+          const tier = pick(lang, ["最符合", "次符合", "可以嘗試"][i], ["Hợp nhất", "Khá hợp", "Có thể thử"][i], ["Best match", "Good match", "Worth a try"][i]);
+          const tierTone = i === 0 ? "bg-pulse text-ink" : i === 1 ? "bg-pulse/20 text-pulse" : "bg-surface-raised text-content-muted";
           return (
-            <div key={g.id} className="card flex items-center gap-3 p-3">
-              <RankBadge rank={i + 1} />
-              <Link to={`/game/${g.id}`} className="shrink-0">
-                <GameThumb game={g} className="w-16" />
-              </Link>
-              <div className="min-w-0 flex-1">
-                <Link to={`/game/${g.id}`} className="truncate font-display text-sm font-semibold hover:text-pulse">
-                  {g.name}
-                </Link>
-                <div className="mt-0.5">
-                  <Stars value={g.rating} />
+            <div key={g.id} className="card p-3">
+              <div className="flex items-center gap-3">
+                <Link to={`/game/${g.id}`} className="shrink-0"><GameThumb game={g} className="w-16" /></Link>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${tierTone}`}>{tier}</span>
+                    <Link to={`/game/${g.id}`} className="truncate font-display text-sm font-semibold hover:text-pulse">{g.name}</Link>
+                  </div>
+                  <div className="mt-0.5"><Stars value={g.rating} /></div>
+                  <p className="mt-1 truncate text-[11px] text-content-muted">{t("quiz.reason")}：{matched.length ? matched.join("·") : g.provider}</p>
+                  <p className="text-[11px] text-content-faint">{t("quiz.marketRank")}：#{rankOf(g, market)}</p>
                 </div>
-                <p className="mt-1 truncate text-[11px] text-content-muted">
-                  {t("quiz.reason")}: {matched.length ? matched.join(" · ") : g.provider}
-                </p>
-                <p className="text-[11px] text-content-faint">
-                  {t("quiz.marketRank")}: #{rankOf(g, market)}
-                </p>
-              </div>
-              <div className="flex flex-col items-end gap-1.5">
                 <SaveButton game={g} />
-                <div className="w-24">
-                  <DemoButton game={g} full />
-                </div>
+              </div>
+              <div className="mt-2 flex items-center gap-1.5 border-t border-surface-line pt-2">
+                <DemoButton game={g} label="auto" />
+                <Link to={`/game/${g.id}`} className="btn-ghost h-9 text-xs">{t("action.viewDetail")}</Link>
               </div>
             </div>
           );
