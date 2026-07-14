@@ -8,6 +8,7 @@ import { RankRow } from "@/components/GameCard";
 import { RowSkeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { useSimulatedLoading } from "@/lib/useLoading";
+import { useSeo } from "@/lib/useSeo";
 import { heatScore, rankOf, trendOf, weekHeatDelta } from "@/lib/format";
 import { pick } from "@/i18n";
 
@@ -18,6 +19,7 @@ export default function Pulse() {
   const { t, lang, market, accent } = useMarket();
   const [tab, setTab] = useState<Tab>("hot");
   const [range, setRange] = useState<Range>("d7");
+  useSeo({ title: pick(lang, "熱門遊戲排行", "Bảng xếp hạng game", "Game rankings") + " | SEA Play Pulse", description: pick(lang, "越南與菲律賓玩家近期熱門的免費試玩遊戲排行。", "Xếp hạng game chơi thử miễn phí thịnh hành ở VN & PH.", "Trending free-demo game rankings for Vietnam & the Philippines."), path: "/pulse" });
   const loading = useSimulatedLoading(400, [market, tab, range]);
   const games = gamesInMarket(market);
 

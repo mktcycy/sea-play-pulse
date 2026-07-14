@@ -12,6 +12,7 @@ import { RailCard } from "@/components/GameCard";
 import { GameCardSkeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { useSimulatedLoading } from "@/lib/useLoading";
+import { useSeo } from "@/lib/useSeo";
 import { heatScore } from "@/lib/format";
 import { pick } from "@/i18n";
 
@@ -27,6 +28,7 @@ export default function Discover() {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<Sort>("heat");
   const [onlyDemo, setOnlyDemo] = useState(false);
+  useSeo({ title: pick(lang, "找遊戲", "Tìm game", "Find games") + " | SEA Play Pulse", description: pick(lang, "依類型、玩法與主題探索可免費試玩的遊戲。", "Khám phá game chơi thử miễn phí theo loại, lối chơi, chủ đề.", "Discover free-demo games by type, mechanic and theme."), path: "/discover" });
   const loading = useSimulatedLoading(400, [market, cat, sort, mech, theme]);
 
   const patch = (key: string, val: string) => {

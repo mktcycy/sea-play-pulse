@@ -14,10 +14,12 @@ import { TodayPick, RecentPlayedRail } from "@/components/Shared";
 import { GameCardSkeleton, RowSkeleton } from "@/components/Skeleton";
 import { duelOfTheDay } from "@/data/duel";
 import { useSimulatedLoading } from "@/lib/useLoading";
+import { useSeo } from "@/lib/useSeo";
 import { formatCount } from "@/lib/format";
 
 export default function Home() {
   const { t, market, accent, lang } = useMarket();
+  useSeo({ title: `SEA Play Pulse｜${t("app.tagline")}`, description: t("hero.subtitle"), path: "/" });
   const loading = useSimulatedLoading(500, [market]);
   const games = gamesInMarket(market);
 

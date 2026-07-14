@@ -7,6 +7,7 @@ import { gamesInMarket } from "@/data/games";
 import { MECHANIC, THEME } from "@/data/vocab";
 import { Icon } from "@/components/Icon";
 import { pick } from "@/i18n";
+import { useSeo } from "@/lib/useSeo";
 
 type Group = "type" | "mechanic" | "theme";
 
@@ -45,6 +46,7 @@ function desc(id: string, lang: Lang): string {
 
 export default function Categories() {
   const { t, lang, market } = useMarket();
+  useSeo({ title: pick(lang, "遊戲分類", "Thể loại game", "Game categories") + " | SEA Play Pulse", description: pick(lang, "依遊戲類型、玩法機制與主題瀏覽可免費試玩的遊戲。", "Duyệt game chơi thử miễn phí theo loại, cơ chế và chủ đề.", "Browse free-demo games by type, mechanic and theme."), path: "/categories" });
   const [group, setGroup] = useState<Group>("type");
   const games = gamesInMarket(market);
 

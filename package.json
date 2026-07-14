@@ -6,7 +6,7 @@
   "description": "SEA Play Pulse — a mobile-first game discovery & market-trend platform demo for Vietnam and the Philippines (mock data only).",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "build": "tsc --noEmit -p tsconfig.json && vite build && bun scripts/prerender.ts",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },

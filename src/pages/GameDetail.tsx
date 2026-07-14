@@ -20,6 +20,8 @@ import { MetaTags } from "@/components/Shared";
 import { ReviewBlock } from "@/components/ReviewBlock";
 import { EmptyState } from "@/components/EmptyState";
 import { pick } from "@/i18n";
+import { useSeo } from "@/lib/useSeo";
+import { gameIntro, gameFeatures, gameHowToPlay, gameSuitableFor, gameFAQ, reviewCount, seoTitle, seoDescription } from "@/data/seo";
 import { heatScore, rankOf, trendOf } from "@/lib/format";
 
 const TERMS = ["rtp", "volatility", "wild", "scatter", "freeSpins", "bonusGame", "cascading", "maxWin"];
@@ -55,6 +57,12 @@ export default function GameDetail() {
   useEffect(() => {
     if (game) addRecent(game.id);
   }, [game, addRecent]);
+
+  useSeo({
+    title: game ? seoTitle(game, lang) : "SEA Play Pulse",
+    description: game ? seoDescription(game, lang) : "",
+    path: game ? `/game/${game.id}` : "/",
+  });
 
   if (!game) {
     return (
@@ -153,16 +161,46 @@ export default function GameDetail() {
         <MarketHeat market="ph" label={t("detail.phHeat")} game={game} />
       </div>
 
-      {/* 3 quick highlights */}
-      <Section title={pick(lang, "3 個特色快速看懂", "3 điểm nổi bật", "3 quick highlights")}>
+      {/* 遊戲介紹 + credibility */}
+      <Section title={pick(lang, "遊戲介紹", "Giới thiệu game", "About this game")}>
+        <div className="card p-4">
+          <p className="text-sm leading-relaxed text-content">{gameIntro(game, lang)}</p>
+          <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 border-t border-surface-line pt-3 text-[11px] sm:grid-cols-3">
+            <Cred label={t("detail.provider")} value={game.provider} />
+            <Cred label={pick(lang, "資料來源", "Nguồn dữ liệu", "Data source")} value={t("misc.sampleData")} />
+            <Cred label={pick(lang, "試玩來源", "Nguồn chơi thử", "Demo source")} value={game.demoType === "onsite" ? t("playType.onsite") : t("playType.official")} />
+            <Cred label={pick(lang, "最後更新", "Cập nhật", "Last updated")} value="2026-07-14" />
+            <Cred label={pick(lang, "心得依據", "Số phản hồi", "Feedback count")} value={pick(lang, `${reviewCount(game)} 則回饋`, `${reviewCount(game)} phản hồi`, `${reviewCount(game)} reviews`)} />
+          </div>
+        </div>
+      </Section>
+
+      {/* 遊戲特色 */}
+      <Section title={pick(lang, "遊戲特色", "Đặc điểm", "Features")}>
         <div className="grid gap-2 sm:grid-cols-3">
-          {game.quickHighlights.map((h, i) => (
-            <div key={h} className="card flex items-center gap-2 p-3">
-              <span className="tnum grid h-7 w-7 place-items-center rounded-lg bg-pulse/15 text-xs font-bold text-pulse">{i + 1}</span>
-              <span className="text-sm font-medium">{tokenLabel(h, lang)}</span>
+          {gameFeatures(game, lang).map((f, i) => (
+            <div key={f.title} className="card p-3">
+              <p className="flex items-center gap-2 font-display text-sm font-bold">
+                <span className="tnum grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-pulse/15 text-xs text-pulse">{i + 1}</span>{f.title}
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-content-muted">{f.body}</p>
             </div>
           ))}
         </div>
+      </Section>
+
+      {/* 免費試玩 */}
+      <Section title={pick(lang, "免費試玩", "Chơi thử miễn phí", "Free demo")}>
+        <div className="card p-4">
+          <div className="mb-3 flex items-center gap-1.5"><PlayTypeBadge type={game.demoType} /><DemoStatusBadge status={game.demoStatus} /></div>
+          <p className="text-sm leading-relaxed text-content-muted">{gameHowToPlay(game, lang)}</p>
+          <div className="mt-3"><DemoButton game={game} full label="auto" /></div>
+        </div>
+      </Section>
+
+      {/* 適合哪些玩家 */}
+      <Section title={pick(lang, "適合哪些玩家", "Hợp với ai", "Who it's for")}>
+        <div className="card p-4"><p className="text-sm leading-relaxed text-content-muted">{gameSuitableFor(game, lang)}</p></div>
       </Section>
 
       {/* preview */}
@@ -316,6 +354,18 @@ export default function GameDetail() {
         </div>
       </div>
 
+      {/* 常見問題 (answers shown directly, not behind a click) */}
+      <Section title={pick(lang, "常見問題", "Câu hỏi thường gặp", "FAQ")}>
+        <div className="grid gap-2">
+          {gameFAQ(game, lang).map((f) => (
+            <div key={f.q} className="card p-3">
+              <p className="text-sm font-semibold text-content">{f.q}</p>
+              <p className="mt-1 text-sm leading-relaxed text-content-muted">{f.a}</p>
+            </div>
+          ))}
+        </div>
+      </Section>
+
       {/* similar */}
       {similar.length > 0 && (
         <Section title={t("detail.similar")}>
@@ -328,6 +378,15 @@ export default function GameDetail() {
       )}
 
       <p className="mt-6 text-center text-[11px] text-content-faint">{t("misc.disclaimerShort")}</p>
+    </div>
+  );
+}
+
+function Cred({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-content-faint">{label}</p>
+      <p className="font-medium text-content">{value}</p>
     </div>
   );
 }

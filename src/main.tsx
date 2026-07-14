@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { HashRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { MarketProvider } from "./context/MarketContext";
 import { SavedProvider } from "./context/SavedContext";
@@ -9,7 +9,7 @@ import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <HashRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <MarketProvider>
         <SavedProvider>
           <ToastProvider>
@@ -17,6 +17,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           </ToastProvider>
         </SavedProvider>
       </MarketProvider>
-    </HashRouter>
+    </BrowserRouter>
   </React.StrictMode>,
 );
