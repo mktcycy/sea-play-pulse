@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /*?
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+Sitemap: https://mktcycy.github.io/sea-play-pulse/sitemap.xml
